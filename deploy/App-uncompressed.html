@@ -3,7 +3,7 @@
 <head>
     <title>TaskBoard</title>
 
-    <script type="text/javascript" src="/apps/2.0rc2/sdk.js"></script>
+    <script type="text/javascript" src="/apps/2.0rc3/sdk.js"></script>
 
     <script type="text/javascript">
         Rally.onReady(function () {
@@ -13,7 +13,7 @@
     scopeType: 'release',
     comboboxConfig: {
         fieldLabel: 'Select a PSI:',
-        labelWidth: 100,
+//        labelWidth: 100,
         width: 300
     },
 	addContent: function() {
@@ -41,6 +41,7 @@
 		});
 		this._fieldCombo = new Ext.create('Ext.form.ComboBox', {
 			fieldLabel: 'Choose WSJF Field',
+			html: '<h1>test html</h1>',
 			store: piFields,
 			queryMode: 'local',
 			displayField: 'name',

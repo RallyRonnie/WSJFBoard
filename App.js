@@ -4,7 +4,7 @@ Ext.define('CustomApp', {
     scopeType: 'release',
     comboboxConfig: {
         fieldLabel: 'Select a PSI:',
-        labelWidth: 100,
+//        labelWidth: 100,
         width: 300
     },
 	addContent: function() {
@@ -32,6 +32,7 @@ Ext.define('CustomApp', {
 		});
 		this._fieldCombo = new Ext.create('Ext.form.ComboBox', {
 			fieldLabel: 'Choose WSJF Field',
+			html: '<h1>test html</h1>',
 			store: piFields,
 			queryMode: 'local',
 			displayField: 'name',
