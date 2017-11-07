@@ -3,7 +3,7 @@ Ext.define('CustomApp', {
     componentCls: 'app',
     scopeType: 'release',
     comboboxConfig: {
-        fieldLabel: 'Select a PSI:',
+        fieldLabel: 'Select a PI:',
 //        labelWidth: 100,
         width: 300
     },
@@ -21,18 +21,19 @@ Ext.define('CustomApp', {
 		if ( this._myBoard ) { this._myBoard.destroy(); }
 		if ( this._fieldCombo ) { this._fieldCombo.destroy(); }
 		piField = '';
+		var that = this;		
 		var piFields = new Ext.create('Ext.data.Store', {
 			fields: ['field','name'],
 			data : [
-				{field:"TimeCriticality",name:"Time Value"},
-				{field:"UserBusinessValue",name:"User Value"},
-				{field:"RROEValue",name:"RR|OE Value"},
-				{field:"JobSize",name:"Job Size"}
+				{field:"TimeCriticality",name: that.getSetting('TimeCriticalityField')},
+				{field:"UserBusinessValue",name: that.getSetting('UserBusinessValueField')},
+				{field:"RROEValue",name: that.getSetting('RROEValueField')},
+				{field:"JobSize",name: that.getSetting('JobSizeField')}
 			]
 		});
 		this._fieldCombo = new Ext.create('Ext.form.ComboBox', {
 			fieldLabel: 'Choose WSJF Field',
-			html: '<h1>test html</h1>',
+//			html: '<h1>test html</h1>',
 			store: piFields,
 			queryMode: 'local',
 			displayField: 'name',
@@ -58,7 +59,7 @@ Ext.define('CustomApp', {
     _createBoard: function(label, field) {
 		if ( this._myBoard ) { this._myBoard.destroy(); }
 		var pcolumns = '[';
-		_.each( ['1', '2', '3','5','8','13','21'], function (n) {
+		_.each( ['1','2','3','5','8','13','21'], function (n) {
 			var pcolumn = "{ value: '" + n + "', columnHeaderConfig: { headerTpl: '{" +
 			field + "}', headerData: { " + field + ": '" + 
 //			label + " = " + 
@@ -69,7 +70,7 @@ Ext.define('CustomApp', {
 		pcolumns = pcolumns.substring(0, pcolumns.length - 1) + "]";
         this._myBoard = Ext.create("Rally.ui.cardboard.CardBoard", {
 			xtype: 'rallycardboard',
-			types: 'PortfolioItem/Feature',
+			types: this.getSetting('PITypeField'),
 			attribute: field,
 			listeners:{
 				scope:this
@@ -91,6 +92,58 @@ Ext.define('CustomApp', {
 
         });
         this.add(this._myBoard);
+	},
+	getSettingsFields: function() {
+        var values = [
+            {
+                name: 'PITypeField',
+                xtype: 'rallytextfield',
+                label : "Portfolio Item Type",
+                labelWidth: 200
+            },
+            {
+                name: 'TimeCriticalityField',
+                xtype: 'rallytextfield',
+                label : "Time Criticality Field",
+                labelWidth: 200
+            },
+            {
+                name: 'RROEValueField',
+                xtype: 'rallytextfield',
+                label : "RROEValue Field",
+                labelWidth: 200
+            },
+            {
+                name: 'UserBusinessValueField',
+                xtype: 'rallytextfield',
+                label : "User Business Value Field",
+                labelWidth: 200
+            },
+            {
+                name: 'JobSizeField',
+                xtype: 'rallytextfield',
+                label : "Job Size Field",
+                labelWidth: 200
+            },
+            {
+                name: 'queryField',
+                xtype: 'rallytextfield',
+                label : "Query",
+                labelWidth: 200
+            }
+        ];
+
+        return values;
+    },
+
+    config: {
+        defaultSettings : {
+			PITypeField : 'PortfolioItem/Feature',
+            TimeCriticalityField : 'TimeCriticality',
+            RROEValueField : 'RROEValue',
+            UserBusinessValueField : 'UserBusinessValue',
+            JobSizeField : 'JobSize'
+        }
     }
 });
 
