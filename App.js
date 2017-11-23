@@ -1,21 +1,19 @@
 Ext.define('CustomApp', {
     extend: 'Rally.app.TimeboxScopedApp',
     componentCls: 'app',
-    scopeType: 'release',
-    comboboxConfig: {
-        fieldLabel: 'Select a PI:',
-//        labelWidth: 100,
-        width: 300
-    },
-	addContent: function() {
-	console.log("in content");
-		this.filter = this.getContext().getTimeboxScope().getQueryFilter();
-		this._getField();
-	},
-	onScopeChange: function() {
-		console.log("in change");
-		this.filter = this.getContext().getTimeboxScope().getQueryFilter();
-		this._getField();
+	launch: function () {
+        app = this;
+		typeComboBox = this.add({
+			xtype: 'rallyportfolioitemtypecombobox',
+			listeners: {
+				select: function(combobox) {
+					// console.log(typeComboBox.getRecord());
+					app.piType = typeComboBox.getRecord().get('TypePath');
+					this._getField();
+				},
+				scope: this
+			}
+		});
 	},
 	_getField: function() {
 		if ( this._myBoard ) { this._myBoard.destroy(); }
@@ -23,12 +21,12 @@ Ext.define('CustomApp', {
 		piField = '';
 		var that = this;		
 		var piFields = new Ext.create('Ext.data.Store', {
-			fields: ['field','name'],
+			fields: ['name','field'],
 			data : [
-				{field:"TimeCriticality",name: that.getSetting('TimeCriticalityField')},
-				{field:"UserBusinessValue",name: that.getSetting('UserBusinessValueField')},
-				{field:"RROEValue",name: that.getSetting('RROEValueField')},
-				{field:"JobSize",name: that.getSetting('JobSizeField')}
+				{name: that.getSetting('TimeCriticalityLabel'),   field: that.getSetting('TimeCriticalityField')},
+				{name: that.getSetting('UserBusinessValueLabel'), field: that.getSetting('UserBusinessValueField')},
+				{name: that.getSetting('RROEValueLabel'),         field: that.getSetting('RROEValueField')},
+				{name: that.getSetting('JobSizeLabel'),           field: that.getSetting('JobSizeField')}
 			]
 		});
 		this._fieldCombo = new Ext.create('Ext.form.ComboBox', {
@@ -66,11 +64,10 @@ Ext.define('CustomApp', {
 			n + "' } } }";
 			pcolumns = pcolumns + pcolumn + ",";
 		});
-// console.log(this.getContext().getTimeboxScope().getQueryFilter());
 		pcolumns = pcolumns.substring(0, pcolumns.length - 1) + "]";
         this._myBoard = Ext.create("Rally.ui.cardboard.CardBoard", {
 			xtype: 'rallycardboard',
-			types: this.getSetting('PITypeField'),
+			types: app.piType,
 			attribute: field,
 			listeners:{
 				scope:this
@@ -83,7 +80,7 @@ Ext.define('CustomApp', {
 				showIconMenus: true
 			},
 			storeConfig: {
-				filters: this.filter,
+				filters: app.getQueryFilter(),
 				sorters: [
 					{ property: 'Rank', direction: 'ASC' }
 				]
@@ -96,15 +93,15 @@ Ext.define('CustomApp', {
 	getSettingsFields: function() {
         var values = [
             {
-                name: 'PITypeField',
-                xtype: 'rallytextfield',
-                label : "Portfolio Item Type",
-                labelWidth: 200
-            },
-            {
                 name: 'TimeCriticalityField',
                 xtype: 'rallytextfield',
                 label : "Time Criticality Field",
+                labelWidth: 200
+            },
+            {
+                name: 'TimeCriticalityLabel',
+                xtype: 'rallytextfield',
+                label : "Time Criticality Label",
                 labelWidth: 200
             },
             {
@@ -114,9 +111,21 @@ Ext.define('CustomApp', {
                 labelWidth: 200
             },
             {
+                name: 'RROEValueLabel',
+                xtype: 'rallytextfield',
+                label : "RROEValue Label",
+                labelWidth: 200
+            },
+            {
                 name: 'UserBusinessValueField',
                 xtype: 'rallytextfield',
                 label : "User Business Value Field",
+                labelWidth: 200
+            },
+            {
+                name: 'UserBusinessValueLabel',
+                xtype: 'rallytextfield',
+                label : "User Business Value Label",
                 labelWidth: 200
             },
             {
@@ -126,24 +135,36 @@ Ext.define('CustomApp', {
                 labelWidth: 200
             },
             {
-                name: 'queryField',
+                name: 'JobSizeLabel',
                 xtype: 'rallytextfield',
-                label : "Query",
+                label : "Job Size Label",
                 labelWidth: 200
-            }
+            },
+			{
+				type: 'query'
+			}
         ];
 
         return values;
     },
-
     config: {
         defaultSettings : {
-			PITypeField : 'PortfolioItem/Feature',
             TimeCriticalityField : 'TimeCriticality',
             RROEValueField : 'RROEValue',
             UserBusinessValueField : 'UserBusinessValue',
-            JobSizeField : 'JobSize'
+            JobSizeField : 'JobSize',
+            TimeCriticalityLabel : 'Time Criticality',
+            RROEValueLabel : 'RROE Value',
+            UserBusinessValueLabel : 'User Business Value',
+            JobSizeLabel : 'Job Size'
         }
-    }
+	},
+	getQueryFilter: function () {
+		var queries = [];
+		if (app.getSetting('query')) {
+			queries.push(Rally.data.QueryFilter.fromQueryString(app.getSetting('query')));
+		}
+		return queries;
+	}
 });
 
