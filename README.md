@@ -6,7 +6,7 @@ This is a basic WSJF field estimation board built using the new Rally SDK2 board
 
 ## Screen Shot
 
-![Task Board Example](https://raw.github.com/RallyRonnie/WSJFBoard/master/screenshot.png)
+![WSJF Sizing Board Example](https://raw.github.com/RallyRonnie/WSJFBoard/master/screenshot.png)
 
 ## License
 
