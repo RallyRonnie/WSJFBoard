@@ -1,6 +1,12 @@
 Ext.define('CustomApp', {
     extend: 'Rally.app.TimeboxScopedApp',
-    componentCls: 'app',
+	componentCls: 'app',
+	scopeType: 'release',
+	comboboxConfig: {
+        fieldLabel: 'Select a PI:',
+        labelWidth: 100,
+        width: 300
+    },
 	launch: function () {
         app = this;
 		typeComboBox = this.add({
@@ -74,7 +80,7 @@ Ext.define('CustomApp', {
 			},
 			columns: eval(pcolumns),
 			cardConfig: {
-				fields: ['InvestmentCategory', 'PreliminaryEstimate'],
+				fields: ['InvestmentCategory', 'PreliminaryEstimate','Release'],
 				editable: true,
 				enableValidationUi: true,
 				showIconMenus: true
@@ -160,11 +166,16 @@ Ext.define('CustomApp', {
         }
 	},
 	getQueryFilter: function () {
-		var queries = [];
+		var queries = [this.getContext().getTimeboxScope().getQueryFilter()];
 		if (app.getSetting('query')) {
 			queries.push(Rally.data.QueryFilter.fromQueryString(app.getSetting('query')));
 		}
 		return queries;
-	}
+	},
+	onScopeChange: function() {
+		piLabel = this._fieldCombo.getRawValue();
+		piField = this._fieldCombo.getValue();
+        this._createBoard(piLabel, piField);
+    }
 });
 
