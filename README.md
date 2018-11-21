@@ -1,8 +1,9 @@
-TaskBoard
+WSJF Board
 =========================
 
 ## Overview
-This is a basic WSJF field estimation board built using the new Rally SDK2 board. It will follow a release (PSI) filtered page.
+This is a basic WSJF field estimation board built using the new Rally SDK2 cardboard. You can filter the board via 
+Edit App Settings, and adding a query string.
 
 ## Screen Shot
 
