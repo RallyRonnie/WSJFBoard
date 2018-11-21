@@ -1,12 +1,6 @@
-Ext.define('CustomApp', {
-    extend: 'Rally.app.TimeboxScopedApp',
+Ext.define('WSJFBoardApp', {
+    extend: 'Rally.app.App',
 	componentCls: 'app',
-	scopeType: 'release',
-	comboboxConfig: {
-        fieldLabel: 'Select a PI:',
-        labelWidth: 100,
-        width: 300
-    },
 	launch: function () {
         app = this;
 		typeComboBox = this.add({
@@ -49,12 +43,14 @@ Ext.define('CustomApp', {
 //					console.log('processing rawval: ' + combobox.getRawValue());
 					piLabel = combobox.getRawValue();
 					piField = combobox.getValue();
-					this._createBoard(piLabel, piField);
+					columns = this.setColumns();
+					this._createBoard(piLabel, piField, columns);
 				},
 				ready: function(combobox) {
 					piLabel = combobox.getRawValue();
 					piField = combobox.getValue();
-					this._createBoard(piLabel, piField);
+					columns = this.setColumns();
+					this._createBoard(piLabel, piField, columns);
 				}
 			}
 		});
@@ -62,15 +58,6 @@ Ext.define('CustomApp', {
 	},
     _createBoard: function(label, field) {
 		if ( this._myBoard ) { this._myBoard.destroy(); }
-		var pcolumns = '[';
-		_.each( ['1','2','3','5','8','13','21'], function (n) {
-			var pcolumn = "{ value: '" + n + "', columnHeaderConfig: { headerTpl: '{" +
-			field + "}', headerData: { " + field + ": '" + 
-//			label + " = " + 
-			n + "' } } }";
-			pcolumns = pcolumns + pcolumn + ",";
-		});
-		pcolumns = pcolumns.substring(0, pcolumns.length - 1) + "]";
         this._myBoard = Ext.create("Rally.ui.cardboard.CardBoard", {
 			xtype: 'rallycardboard',
 			types: app.piType,
@@ -78,7 +65,12 @@ Ext.define('CustomApp', {
 			listeners:{
 				scope:this
 			},
-			columns: eval(pcolumns),
+			columnConfig: {
+                columnHeaderConfig: {
+                headerTpl: '{size}'
+            	}
+            },
+            columns: columns,
 			cardConfig: {
 				fields: ['InvestmentCategory', 'PreliminaryEstimate','Release'],
 				editable: true,
@@ -146,11 +138,16 @@ Ext.define('CustomApp', {
                 label : "Job Size Label",
                 labelWidth: 200
             },
+            {
+                name: 'Values',
+                xtype: 'rallytextfield',
+                label : "Size Values (Columns)",
+                labelWidth: 200
+            },
 			{
 				type: 'query'
 			}
         ];
-
         return values;
     },
     config: {
@@ -162,20 +159,34 @@ Ext.define('CustomApp', {
             TimeCriticalityLabel : 'Time Criticality',
             RROEValueLabel : 'RROE Value',
             UserBusinessValueLabel : 'User Business Value',
-            JobSizeLabel : 'Job Size'
+			JobSizeLabel : 'Job Size',
+			Values : ['1','2','3','5','8','13','21']
         }
 	},
 	getQueryFilter: function () {
-		var queries = [this.getContext().getTimeboxScope().getQueryFilter()];
+		var filters = [];
 		if (app.getSetting('query')) {
-			queries.push(Rally.data.QueryFilter.fromQueryString(app.getSetting('query')));
+			filters.push(Rally.data.QueryFilter.fromQueryString(app.getSetting('query')));
 		}
-		return queries;
+		return filters;
 	},
 	onScopeChange: function() {
 		piLabel = this._fieldCombo.getRawValue();
 		piField = this._fieldCombo.getValue();
-        this._createBoard(piLabel, piField);
-    }
-});
+		columns = this.setColumns();
+        this._createBoard(piLabel, piField, columns);
+	},
+	setColumns: function() {
+		var val = this.getSetting('Values').split(',');
+		var columns = [];
+        _.each( val, function (n) {
+            columns.push({
+                value: n,
+                columnHeaderConfig: {
+                    headerData: {size: n}
+                }
+            });
+		});
+		return columns;
+	}});
 
